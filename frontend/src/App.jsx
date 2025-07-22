@@ -3,6 +3,7 @@ import React from "react";
 import EmployeeTable from "./components/ui/employeeTable";
 import { useQuery } from "@tanstack/react-query";
 import {baseUrl} from "../constanst/global_variable.js"
+import { InputDialog } from "./components/ui/inputDialog.jsx";
 
 const App = () => {
  // eslint-disable-next-line no-unused-vars
@@ -27,6 +28,7 @@ const App = () => {
   return (
   <>
   <VStack gap="6" alignItems="flex-start">
+    <InputDialog />
     <EmployeeTable data={data} />
   </VStack>
   </>

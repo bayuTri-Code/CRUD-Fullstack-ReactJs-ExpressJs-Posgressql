@@ -29,8 +29,8 @@ const employeeTable = ({data})=>{
             return data;
         },
         onError: (error)=> {
-            console.log(error.response);
-            // toast.error(error.message)
+            console.log(error.message);
+            toast.error(error.message)
         },
         onSuccess: ()=>{
           toast.success("Employee details deleted!");
