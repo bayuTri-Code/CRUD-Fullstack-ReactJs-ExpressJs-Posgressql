@@ -1,15 +1,19 @@
-import React from 'react'
+import React from "react";
 
-"use client"
+("use client");
 
-import { Portal, Select, createListCollection } from "@chakra-ui/react"
+import { Portal, Select, createListCollection } from "@chakra-ui/react";
 
-
-export const SelectRole = () => {
+export const SelectRole = ({ setInfo }) => {
   return (
-   <Select.Root collection={roles} size="sm" width="320px">
+    <Select.Root
+      collection={roles}
+      size="sm"
+      width="320px"
+      onChange={(e) => setInfo((prev) => ({ ...prev, role: e.target.value }))}
+    >
       <Select.HiddenSelect />
-      <Select.Label>Select framework</Select.Label>
+      <Select.Label>Select Role</Select.Label>
       <Select.Control>
         <Select.Trigger>
           <Select.ValueText placeholder="Select Role" />
@@ -20,7 +24,7 @@ export const SelectRole = () => {
       </Select.Control>
       <Portal>
         <Select.Positioner>
-          <Select.Content className='select'>
+          <Select.Content className="select">
             {roles.items.map((role) => (
               <Select.Item item={role} key={role.value}>
                 {role.label}
@@ -31,8 +35,8 @@ export const SelectRole = () => {
         </Select.Positioner>
       </Portal>
     </Select.Root>
-  )
-}
+  );
+};
 
 const roles = createListCollection({
   items: [
@@ -42,7 +46,6 @@ const roles = createListCollection({
     { label: "Sales", value: "Sales" },
     { label: "Intern", value: "Intern" },
   ],
-})
-
+});
 
 export default SelectRole;

@@ -2,13 +2,13 @@ import { VStack } from "@chakra-ui/react";
 import React from "react";
 import EmployeeTable from "./components/ui/employeeTable";
 import { useQuery } from "@tanstack/react-query";
-import {baseUrl} from "../constanst/global_variable.js"
+import {BaseUrl} from "../constanst/global_variable.js"
 import { InputDialog } from "./components/ui/inputDialog.jsx";
 
 const App = () => {
  // eslint-disable-next-line no-unused-vars
  async function fetchEmployeeDetails(params) {
-    const res = await fetch(baseUrl);
+    const res = await fetch(BaseUrl);
     const data = await res.json();
     if(!res.ok){
       throw new error(data.error);

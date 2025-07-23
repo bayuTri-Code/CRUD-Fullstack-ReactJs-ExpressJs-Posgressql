@@ -3,7 +3,7 @@ import { For, HStack, Stack, Table, TableCell } from "@chakra-ui/react";
 import { AiTwotoneDelete } from "react-icons/ai";
 import { MdOutlineModeEdit } from "react-icons/md";
 import { useMutation } from "@tanstack/react-query";
-import { baseUrl } from "../../../constanst/global_variable";
+import { BaseUrl } from "../../../constanst/global_variable";
 import toast from "react-hot-toast";
 import { queryClient } from "../../../utils/queryClients.js";
 
@@ -16,10 +16,10 @@ const employeeTable = ({data})=>{
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const Mutation = useMutation({
         mutationFn: async (id) =>{
-            const response = await fetch(baseUrl + '/' +id,{
+            const response = await fetch(BaseUrl + '' +id,{
                 method: "DELETE",
                 headers: {
-                    "Content-Type":"application/JSON"
+                    "Content-Type":"application/json"
                 }
             });
             const data  = await response.json();
