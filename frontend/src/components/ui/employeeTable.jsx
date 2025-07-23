@@ -6,40 +6,42 @@ import { useMutation } from "@tanstack/react-query";
 import { BaseUrl } from "../../../constanst/global_variable";
 import toast from "react-hot-toast";
 import { queryClient } from "../../../utils/queryClients.js";
+import { DialogTrigger } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
+import InputDialog from "./inputDialog.jsx";
 
-const employeeTable = ({data})=>{
+const employeeTable = ({ data }) => {
+  if (!data.length) {
+    return <h1>You don't Have Employee data!!</h1>;
+  }
 
-    if(!data.length){
-        return <h1>You don't Have Employee data!!</h1>
-    }
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const Mutation = useMutation({
-        mutationFn: async (id) =>{
-            const response = await fetch(BaseUrl + '' +id,{
-                method: "DELETE",
-                headers: {
-                    "Content-Type":"application/json"
-                }
-            });
-            const data  = await response.json();
-            if(!response.ok){
-                throw new Error(data.error)
-            }
-            return data;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const Mutation = useMutation({
+    mutationFn: async (info) => {
+      const response = await fetch(BaseUrl + "" + info.id, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
         },
-        onError: (error)=> {
-            console.log(error.message);
-            toast.error(error.message)
-        },
-        onSuccess: ()=>{
-          toast.success("Employee details deleted!");
-          queryClient.invalidateQueries({queryKey: ["employee_details"]});
-        }
-    })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error);
+      }
+      return data;
+    },
+    onError: (error) => {
+      console.log(error.message);
+      toast.error(error.message);
+    },
+    onSuccess: () => {
+      toast.success("Employee details deleted!");
+      queryClient.invalidateQueries({ queryKey: ["employee_details"] });
+    },
+  });
 
-    return (
-          <>
+  return (
+    <>
       <Stack gap="10">
         <Table.Root size="md" variant="outline">
           <Table.Header>
@@ -64,8 +66,16 @@ const employeeTable = ({data})=>{
                 <Table.Cell>{item.salary}</Table.Cell>
                 <Table.Cell>
                   <HStack gap="3">
-                  <AiTwotoneDelete size={20} className="icon" onClick={()=> Mutation.mutate(item.id)} />
-                  <MdOutlineModeEdit size={20} className="icon" />
+                    <AiTwotoneDelete
+                      size={20}
+                      className="icon"
+                      onClick={() => Mutation.mutate(item)}
+                    />
+                    <InputDialog data={item} type="update">
+                      <DialogTrigger asChild>
+                        <MdOutlineModeEdit size={20} className="icon" />
+                      </DialogTrigger>
+                    </InputDialog>
                   </HStack>
                 </Table.Cell>
               </Table.Row>
@@ -74,8 +84,7 @@ const employeeTable = ({data})=>{
         </Table.Root>
       </Stack>
     </>
-    )
-}
-
+  );
+};
 
 export default employeeTable;

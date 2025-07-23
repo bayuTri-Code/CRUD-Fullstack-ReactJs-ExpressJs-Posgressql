@@ -17,35 +17,73 @@ import { useMutation } from "@tanstack/react-query";
 import { BaseUrl } from "../../../constanst/global_variable.js";
 import { queryClient } from "../../../utils/queryClients.js";
 
-
-export const InputDialog = () => {
-  const [info, setInfo] = useState({
-    name: "",
-    email: "",
-    age: "",
-    salary: "",
-    role: "",
-  });
+export const InputDialog = ({ children, type = "add", data }) => {
+  const [open, setOpen] = useState(false);
+  const [info, setInfo] = useState(
+    type === "add"
+      ? {
+          name: "",
+          email: "",
+          age: "",
+          salary: "",
+          role: "",
+        }
+      : data
+  );
   function handleChange(e) {
     setInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
   console.log(info);
-   const mutation = useMutation({
+  const addmutation = useMutation({
+    mutationFn: async (info) => {
+      const response = await fetch(BaseUrl, {
+        method: "POST",
+        body: JSON.stringify(info),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("Response:", response);
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+      return data;
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSuccess: (data) => {
+      setInfo({
+        name: "",
+        email: "",
+        age: "",
+        salary: "",
+        role: "",
+      });
+      setOpen(false);
+      console.log(data);
+      toast.success("Employee details added!");
+      queryClient.invalidateQueries({ queryKey: ["employee_details"] });
+    },
+  });
+
+const updatemutation = useMutation({
   mutationFn: async (info) => {
-    const response = await fetch(BaseUrl, {
-      method: "POST",
-      body: JSON.stringify(info),
+    const response = await fetch(`${BaseUrl}${info.id}`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify(info),
     });
-
-    console.log('Response:', response);
 
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || 'Something went wrong');
+      throw new Error(data.error || "Something went wrong during update");
     }
     return data;
   },
@@ -53,34 +91,52 @@ export const InputDialog = () => {
     toast.error(error.message);
   },
   onSuccess: (data) => {
-    console.log(data);
-    toast.success("Employee details added!");
+    setInfo({
+      name: "",
+      email: "",
+      age: "",
+      salary: "",
+      role: "",
+    });
+    console.log(data)
+    setOpen(false);
+    toast.success("Employee updated successfully!");
     queryClient.invalidateQueries({ queryKey: ["employee_details"] });
-  }
+  },
 });
 
   const requiredFields = ["name", "age", "email", "salary"];
   function handleeSubmit() {
     for (const key of requiredFields) {
-      if (!info[key].trim()) {
+      if (!info[key].toString().trim()) {
         toast.error("Missing Fields!!");
         return;
       }
     }
-    mutation.mutate({...info, role: info.role || null});
+     const infoUpdate = { ...info, role: info.role || null };
+    if (type === "add") {
+      addmutation.mutate(infoUpdate); 
+    } else {
+      updatemutation.mutate(infoUpdate);
+    }
   }
 
   return (
-    <Dialog.Root placement="center" motionPreset="slide-in-bottom">
-      <Dialog.Trigger asChild>
-        <Button variant="outline">Add Employee </Button>
-      </Dialog.Trigger>
+    <Dialog.Root
+      placement="center"
+      motionPreset="slide-in-bottom"
+      open={open}
+      onOpenChange={(e) => setOpen(e.open)}
+    >
+      {children}
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content>
             <Dialog.Header>
-              <Dialog.Title>Add Data Employee</Dialog.Title>
+              <Dialog.Title>
+                {type === "add" ? "Add Employee" : "Update Employee"}
+              </Dialog.Title>
             </Dialog.Header>
             <Dialog.Body>
               <VStack gap={4} alignItems={"flex-start"}>
@@ -124,7 +180,9 @@ export const InputDialog = () => {
               <Dialog.ActionTrigger asChild>
                 <Button variant="outline">Cancel</Button>
               </Dialog.ActionTrigger>
-              <Button onClick={handleeSubmit}>Add</Button>
+              <Button onClick={handleeSubmit}>
+                {type === "add" ? "Add" : "Update"}
+              </Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger asChild>
               <CloseButton size="sm" />
